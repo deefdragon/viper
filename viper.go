@@ -275,9 +275,11 @@ func (v *Viper) OnConfigChange(run func(in fsnotify.Event)) {
 }
 
 // WatchConfig starts watching a config file for changes.
+// If there is an error watching the config file, WatchConfig will panic.
 func WatchConfig() { v.WatchConfig() }
 
 // WatchConfig starts watching a config file for changes.
+// If there is an error watching the config file, WatchConfig will panic.
 func (v *Viper) WatchConfig() {
 
 	watcher, err := fsnotify.NewWatcher()
