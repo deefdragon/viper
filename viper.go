@@ -282,13 +282,15 @@ func (v *Viper) WatchConfig() {
 
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
-		v.logger.Error(fmt.Sprintf("failed to create watcher: %s", err))
+		err = fmt.Errorf("failed to create watcher: %s", err)
+		v.logger.Error(err.Error())
 		panic(err)
 	}
 	// we have to watch the entire directory to pick up renames/atomic saves in a cross-platform way
 	filename, err := v.getConfigFile()
 	if err != nil {
-		v.logger.Error(fmt.Sprintf("get config file: %s", err))
+		err = fmt.Errorf("failed to get config file: %s", err)
+		v.logger.Error(err.Error())
 		watcher.Close()
 		panic(err)
 	}
@@ -299,7 +301,8 @@ func (v *Viper) WatchConfig() {
 
 	err = watcher.Add(configDir)
 	if err != nil {
-		v.logger.Error(fmt.Sprintf("failed to add watcher: %s", err))
+		err = fmt.Errorf("failed to add config dir to watcher: %s", err)
+		v.logger.Error(err.Error())
 		watcher.Close()
 		panic(err)
 	}
