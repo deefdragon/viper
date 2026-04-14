@@ -275,35 +275,37 @@ func (v *Viper) OnConfigChange(run func(in fsnotify.Event)) {
 }
 
 // WatchConfig starts watching a config file for changes.
-// If there is an error watching the config file, WatchConfig will panic.
+// If there is an error watching the config file during setup, WatchConfig will panic.
+// Errors encountered after setup, during watching will be logged.
 func WatchConfig() { v.WatchConfig() }
 
 // WatchConfig starts watching a config file for changes.
-// If there is an error watching the config file, WatchConfig will panic.
+// If there is an error watching the config file during setup, WatchConfig will panic.
+// Errors encountered after setup, during watching will be logged.
 func (v *Viper) WatchConfig() {
 
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
-		err = fmt.Errorf("failed to create watcher: %s", err)
+		err = fmt.Errorf("failed to create watcher: %w", err)
 		v.logger.Error(err.Error())
 		panic(err)
 	}
 	// we have to watch the entire directory to pick up renames/atomic saves in a cross-platform way
 	filename, err := v.getConfigFile()
 	if err != nil {
-		err = fmt.Errorf("failed to get config file: %s", err)
+		err = fmt.Errorf("failed to get config file: %w", err)
 		v.logger.Error(err.Error())
 		watcher.Close()
 		panic(err)
 	}
 
 	configFile := filepath.Clean(filename)
-	configDir, _ := filepath.Split(configFile)
+	configDir := filepath.Dir(configFile)
 	realConfigFile, _ := filepath.EvalSymlinks(filename)
 
 	err = watcher.Add(configDir)
 	if err != nil {
-		err = fmt.Errorf("failed to add config dir to watcher: %s", err)
+		err = fmt.Errorf("failed to add config dir to watcher: %w", err)
 		v.logger.Error(err.Error())
 		watcher.Close()
 		panic(err)
